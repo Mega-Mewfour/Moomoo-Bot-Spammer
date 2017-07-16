@@ -1,17 +1,29 @@
 {
-  "name": "moomoo",
-  "version": "1.0.0",
-  "description": "A Moomoo spam bot",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "Lucario",
-  "license": "ISC",
-  "dependencies": {
-    "socket.io": "^1.7.4"
-  },
-  "engines": {
-    "node": ">= 7.x.x"
-  }
+	"name":"moomoo",
+	"version":"1.0.0",
+	"description":"",
+	"homepage":"",
+	"author":"Lucario",
+	"main":"index.js",
+	"keywords":[
+	],
+	"scripts":{
+		"foo":"hide node ./index.js"
+	},
+	"devDependencies":{
+	},
+	"repository":{
+		"type":"git",
+		"url":""
+	},
+	"license":"ISC",
+	"dependencies":{
+		"socket.io":"^1.0"
+	},
+	"bugs":{
+		"url":""
+	},
+	"engines":{
+		"node": "7.6.0"
+	}
 }

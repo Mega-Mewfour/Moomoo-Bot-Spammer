@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<style>
+			textarea {
+				resize: none;
+				width: 100%;
+				border:3px solid #AAAAAA;
+				-webkit-box-sizing: border-box;
+				-moz-box-sizing: border-box;
+				box-sizing: border-box;
+			}
+			* { margin: 0; padding: 0; box-sizing: border-box; }
+			form { background: blue; padding: 3px; position: fixed; bottom: 0; width: 100%; }
+			form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
+			form button { width: 9%; background: orange; border: none; padding: 10px; }
+			#messages { list-style-type: none; margin: 0; padding: 0; }
+			#messages li { padding: 5px 10px; }
+			#messages li:nth-child(odd) { background: #eee; }
+			ul{word-wrap: break-word;}
+			li.log {
+				color: brown;
+			}
+			li.error {
+				color: red;
+			}
+		</style>
+	</head>
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+	<script>
+		$(function(){
+			var socket = io(window.location.href === 'http://localhost:8001/' || window.location.href === 'http://localhost:8001/?' ? 'http://localhost:8001/' : 'http://reimtqr4bkyzrtlf.onion');
+			socket.on('connect', () => {
+				console.info("Socket connected!");
+			});
+			socket.on('log', function (data) {
+				if (data.info){
+					$('#messages').append($('<li class="log">').text(`[SYSTEM]: ${data.info}`));
+				}else if (data.error){
+					$('#messages').append($('<li class="error">').text(`[SYSTEM]: ${data.error}`));
+				}
+			});
+			$('form').submit(function(){
+				socket.emit('chat', {msg: $('#m').val()});
+				$('#m').val('');
+				return false;
+			});
+			socket.on('chat', function(msg){
+				$('#messages').append($('<li class="chat">').text(`[${msg.sender}]: ${msg.msg}`));
+				window.scrollTo(0, document.body.scrollHeight);
+			});
+			socket.on('spam_init', (options) => {
+				bot_spam(options.link.value, options.num.value, options.name.value, options.tribe.value, options.chat.value, options.reqspam.value);
+			});
+			socket.on('spam_end', () => {
+				window.bots.forEach((b) => {
+					if (b.disconnect){
+						b.disconnect();
+					}
+				});
+				delete window.bots;
+			});
+		});
+		function bot_spam(address, numBots, botName, clanName, chatMsg, reqspam){
+
+window.bots = [];
+  
+class Bot {
+  constructor(n, name) {
+    this.number = n;
+    this.name = name || "unknown";
+    this.friends = [];
+    this.keys = {};
+    this.randomizing = [false, 0, 0];
+    this.id = 0;
+	this.chatInterval = undefined;
+	this.reqint = undefined;
+	this.chatMsg = chatMsg;
+  }
+  connect() {
+    var sk = this.socket = io.connect("http://" + address + ":" + (5000+(this.number % 11)) + '', {
+      reconnection: false,
+      query: "man=1"
+    });
+	sk.on("disconnect", () => {
+		clearInterval(this.chatInterval);
+		//console.log(this.number + " disconnected");
+		setTimeout(() => {new Bot(this.number, botName).connect();}, 2000);
+		delete this.socket;
+	});
+	sk.on("connect", () => {
+		window.bots.push(this.socket);
+		if (this.chatMsg){
+			this.chatInterval = setInterval(() => {sk.emit("ch", this.chatMsg);}, 3000);
+		}
+		//console.log(this.number + " connected");
+	});
+    sk.on("11", () => {
+		//console.log(this.number + " died");
+		setTimeout(() => {this.spawn(this.number);}, 20);
+	});
+    sk.on("sa", a => {
+      this.friends = [];
+      for (var i = 0; i < a.length; i += 2) {
+        this.friends.push(a[i]);
+      }
+    });
+    sk.on("1", r => {
+		this.id = r;
+		sk.emit("8", clanName);
+		sk.on("an", (a, name) => {
+			//console.log(`${name} requested to join! I accepted!`);
+			sk.emit("11", a, true);
+		});
+		if (reqspam === true){
+			this.reqint = setInterval(() => {this.join(clanName)}, 5000);
+		}else{
+			setTimeout(() => {this.join(clanName)}, 5000);
+		}
+		this.hasSpawned = true;
+    });
+    this.socket.on("id", () => {
+      this.spawn(this.number);
+    });
+  }
+  disconnect(){
+    sk.off('disconnect');
+	if (this.reqint){
+		clearInterval(this.reqint);
+	}
+	this.socket.disconnect();
+  }
+  reset() {
+    for (var i in this.keys) { this.keys[i] = 0; }
+  }
+  enemy(a) {
+    for (var i of this.friends) if (a.sid == i) { return false; }
+    return true;
+  }
+  spawn(number){
+    this.socket && this.socket.emit("1", { name: this.name });
+	//console.log(number + " spawned");
+  }
+  join(clan) {
+    this.socket && this.socket.emit("10", clanName);
+  }
+}
+
+var bn = numBots, r = setInterval(() => {
+  new Bot(bn, botName).connect();
+  if (--bn < 1) { clearInterval(r); }
+}, 250);
+}
+	</script>
+	<body>
+		<font color="red">
+			<p style="font-size:20px">
+				<strong>
+					ATTENTION: DO NOT ACCESS THIS SITE OR USE THE CODE FROM THIS SITE WITHOUT USING TOR. IF YOU IGNORE THIS WARNING, YOU MAY BE IP BANNED FROM MOOMOO.IO PERMANENTLY. THE DEVELOPER OF THIS SITE IS NOT RESPONSIBLE FOR ANY DAMAGES THAT OCCUR AS A RESULT OF USING THIS SITE OR THE CODE CONTAINED WITHIN THIS SITE.
+				</strong>
+			</p>
+		</font>
+		<strong>Moomoo Bot Spammer V1.0 (BETA)</strong>
+		<br>
+		<ul id="messages"></ul>
+		<form action="">
+			<input id="m" autocomplete="off" autofocus></input><button>Send (Enter)</button>
+		</form>
+		<br>
+		<br>
+		<br>
+	</body>
+</html>

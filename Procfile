@@ -1,1 +1,1 @@
-web: node ./index.js
+foo: hide node ./index.js

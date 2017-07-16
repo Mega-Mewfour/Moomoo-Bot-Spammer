@@ -1,1 +1,1 @@
-foo: PORT=8001 hide ./index.js
+foo: PORT=8001 hide node ./index.js
